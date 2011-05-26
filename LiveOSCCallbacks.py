@@ -122,6 +122,8 @@ class LiveOSCCallbacks:
         
         self.callbackManager.add(self.sigCB, "/live/clip/signature")
 
+        self.callbackManager.add(self.addNoteCB, "/live/clip/add_note")
+
         self.callbackManager.add(self.crossfaderCB, "/live/master/crossfader")
         self.callbackManager.add(self.trackxfaderCB, "/live/track/crossfader")
         self.callbackManager.add(self.trackxfaderCB, "/live/return/crossfader")
@@ -496,6 +498,7 @@ class LiveOSCCallbacks:
             trackNumber = msg[2]
             clipNumber = msg[3]
             self.oscServer.sendOSC("/live/name/clip", (trackNumber, clipNumber, str(LiveUtils.getClip(trackNumber, clipNumber).name), LiveUtils.getClip(trackNumber, clipNumber).color))
+            self.oscServer.sendOSC("/live/notes/clip", (trackNumber, clipNumber, str(LiveUtils.getClip(trackNumber, clipNumber).get_selected_notes())))
             return
         #renaming a clip
         if len(msg) >= 5:
@@ -509,6 +512,24 @@ class LiveOSCCallbacks:
             clipNumber = msg[3]
             color = msg[5]
             LiveUtils.getClip(trackNumber, clipNumber).color = color
+
+    def addNoteCB(self, msg):
+        """Called when a /live/clip/add_note message is received
+
+        Messages:
+        /live/clip/add_note (int pitch) (double time) (double duration) (int velocity) (bool muted)    Add the given note to the clip
+        """
+        trackNumber = msg[2]
+        clipNumber = msg[3]
+        pitch = msg[4]
+        time = msg[5]
+        duration = msg[6]
+        velocity = msg[7]
+        muted = msg[8]
+        LiveUtils.getClip(trackNumber, clipNumber).deselect_all_notes()
+
+        notes = ((pitch, time, duration, velocity, muted),)
+        LiveUtils.getClip(trackNumber, clipNumber).replace_selected_notes(notes)
     
     def armTrackCB(self, msg):
         """Called when a /live/arm message is received.
