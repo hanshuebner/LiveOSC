@@ -498,11 +498,17 @@ class LiveOSCCallbacks:
             self.oscServer.sendOSC("/live/name/clip", (trackNumber, clipNumber, str(LiveUtils.getClip(trackNumber, clipNumber).name), LiveUtils.getClip(trackNumber, clipNumber).color))
             return
         #renaming a clip
-        if len(msg) == 5:
+        if len(msg) >= 5:
             trackNumber = msg[2]
             clipNumber = msg[3]
             name = msg[4]
             LiveUtils.getClip(trackNumber, clipNumber).name = name
+
+        if len(msg) >= 6:
+            trackNumber = msg[2]
+            clipNumber = msg[3]
+            color = msg[5]
+            LiveUtils.getClip(trackNumber, clipNumber).color = color
     
     def armTrackCB(self, msg):
         """Called when a /live/arm message is received.
