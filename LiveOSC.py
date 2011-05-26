@@ -39,7 +39,7 @@ class LiveOSC:
     __doc__ = "Main class that establishes the LiveOSC Component"
     
     # Enable Logging
-    _LOG = 0
+    _LOG = 1
     
     prlisten = {}
     plisten = {}
