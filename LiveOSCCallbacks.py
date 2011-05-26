@@ -498,7 +498,6 @@ class LiveOSCCallbacks:
             trackNumber = msg[2]
             clipNumber = msg[3]
             self.oscServer.sendOSC("/live/name/clip", (trackNumber, clipNumber, str(LiveUtils.getClip(trackNumber, clipNumber).name), LiveUtils.getClip(trackNumber, clipNumber).color))
-            self.oscServer.sendOSC("/live/notes/clip", (trackNumber, clipNumber, str(LiveUtils.getClip(trackNumber, clipNumber).get_selected_notes())))
             return
         #renaming a clip
         if len(msg) >= 5:
@@ -530,6 +529,7 @@ class LiveOSCCallbacks:
 
         notes = ((pitch, time, duration, velocity, muted),)
         LiveUtils.getClip(trackNumber, clipNumber).replace_selected_notes(notes)
+        #self.oscServer.sendOSC("/live/notes/clip", (trackNumber, clipNumber, str(LiveUtils.getClip(trackNumber, clipNumber).get_selected_notes())))
     
     def armTrackCB(self, msg):
         """Called when a /live/arm message is received.
