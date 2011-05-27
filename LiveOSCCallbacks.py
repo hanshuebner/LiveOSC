@@ -123,6 +123,7 @@ class LiveOSCCallbacks:
         self.callbackManager.add(self.sigCB, "/live/clip/signature")
 
         self.callbackManager.add(self.addNoteCB, "/live/clip/add_note")
+        self.callbackManager.add(self.getNotesCB, "/live/clip/notes")
 
         self.callbackManager.add(self.crossfaderCB, "/live/master/crossfader")
         self.callbackManager.add(self.trackxfaderCB, "/live/track/crossfader")
@@ -529,7 +530,27 @@ class LiveOSCCallbacks:
 
         notes = ((pitch, time, duration, velocity, muted),)
         LiveUtils.getClip(trackNumber, clipNumber).replace_selected_notes(notes)
-        #self.oscServer.sendOSC("/live/notes/clip", (trackNumber, clipNumber, str(LiveUtils.getClip(trackNumber, clipNumber).get_selected_notes())))
+        self.oscServer.sendOSC('/live/clip/note', (trackNumber, clipNumber, pitch, time, duration, velocity, muted));
+
+    def getNotesCB(self, msg):
+        """Called when a /live/clip/notes message is received
+
+        Messages:
+        /live/clip/notes    Return all notes in the clip in /live/clip/note messages.  Each note is sent in the format
+                            (int trackNumber) (int clipNumber) (int pitch) (double time) (double duration) (int velocity) (int muted)
+        """
+        trackNumber = msg[2]
+        clipNumber = msg[3]
+        LiveUtils.getClip(trackNumber, clipNumber).select_all_notes()
+        for note in LiveUtils.getClip(trackNumber, clipNumber).get_selected_notes():
+            pitch = note[0]
+            time = note[1]
+            duration = note[2]
+            velocity = note[3]
+            muted = 0
+            if note[4]:
+                muted = 1
+            self.oscServer.sendOSC('/live/clip/note', (trackNumber, clipNumber, pitch, time, duration, velocity, muted));
     
     def armTrackCB(self, msg):
         """Called when a /live/arm message is received.
