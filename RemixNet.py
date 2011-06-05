@@ -48,6 +48,7 @@ forward to seeing what will come next.
 """
 import sys
 import Live
+from Logger import Logger
 
 # Import correct paths for os / version
 version = Live.Application.get_application().get_major_version()
@@ -229,11 +230,22 @@ class OSCServer:
         self.callbackManager = OSC.CallbackManager()
         self.callbackManager.add(self.callbackEcho, '/remix/echo')
         self.callbackManager.add(self.callbackEcho, '/remix/time')
+        self.callbackManager.add(self.reconfigureClient, '/remix/reconfigure')
         self.udpServer.setCallbackManager(self.callbackManager)
         self.udpServer.bind()
  
     #Should this method go here?
     #def attachToCurrentSongTime(self):
+
+    def reconfigureClient(self, msg=None):
+        """
+        Reconfigure the client side to the address and port indicated as the argument.
+        """
+        self.udpServer.log('reconfigure ' + str(msg))
+        self.udpClient.close()
+        self.udpClient = UDPClient(msg[2], msg[3])
+        self.udpClient.open()
+        self.oscClient.setUDPClient(self.udpClient)
   
     def callbackEcho(self, msg=None):
         """
@@ -485,6 +497,10 @@ class UDPServer:
         
         You can modify these settings by using the methods setport() and setHost()
         """
+
+        self._LOG = 1
+
+        self.logger = self._LOG and Logger() or 0
         
         if srcPort:
             self.srcPort = srcPort
@@ -497,6 +513,12 @@ class UDPServer:
             self.src = ''
         
         self.buf = 4096
+
+        self.log('listening for requests')
+
+    def log(self, msg):
+        if self._LOG == 1:
+            self.logger.log(msg) 
 
     def processIncomingUDP(self):
         """
@@ -514,6 +536,7 @@ class UDPServer:
             
             while 1:
                 self.data,self.addr = self.UDPSock.recvfrom(self.buf)
+                self.log('received packet from ' + str(self.addr));
                 if not self.data:
                 # No data buffered this round!
                     return
