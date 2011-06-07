@@ -222,7 +222,7 @@ class OSCServer:
         self.udpClient = UDPClient(dst, dstPort)
         self.udpClient.open()
         
-        self.oscClient = OSCClient(self.udpClient,None, None)
+        self.oscClient = OSCClient(self.udpClient, None, None)
         
         # Create our callback manager and register some utility
         # callbacks to show how its done.
@@ -237,17 +237,21 @@ class OSCServer:
     #Should this method go here?
     #def attachToCurrentSongTime(self):
 
-    def reconfigureClient(self, msg=None):
+    def reconfigureClient(self, msg, source):
         """
         Reconfigure the client side to the address and port indicated as the argument.
         """
-        self.udpServer.log('reconfigure ' + str(msg))
+        address = msg[2]
+        if address == '':
+            address = source[0]
+        port = msg[3]
+        self.udpServer.log('reconfigure to send to ' + address + ':' + str(port))
         self.udpClient.close()
-        self.udpClient = UDPClient(msg[2], msg[3])
+        self.udpClient = UDPClient(address, port)
         self.udpClient.open()
         self.oscClient.setUDPClient(self.udpClient)
   
-    def callbackEcho(self, msg=None):
+    def callbackEcho(self, msg, source):
         """
         When re recieve a '/remix/echo' OSC query from another host
         we respond in kind by passing back the message they sent to us.
@@ -256,7 +260,7 @@ class OSCServer:
         
         self.oscClient.send('/remix/echo', msg[2])
         
-    def callbackTime(self, msg=None):
+    def callbackTime(self, msg, source):
         """
         When we recieve a '/remix/time' OSC query from another host
         we respond with the current value of time.time()
@@ -548,10 +552,13 @@ class UDPServer:
                         # the raw data sent to our UDP socket.
                 
                         if self.callbackManager:
-                            self.callbackManager.handle(self.data)
-                        
+                            self.callbackManager.handle(self.data, self.addr)
+
         except Exception, e:
-            pass
+            errno, message=e
+            if errno != 35:                                 # EAGAIN, no data on socket
+                self.log('error handling message, errno ' + str(errno) + ': ' + message)
+                pass
 
     def setCallbackManager(self, callbackManager):
         """

@@ -62,7 +62,7 @@ class LiveOSC:
         self._LiveOSC__c_instance = c_instance
       
         self.basicAPI = 0       
-        self.oscServer = RemixNet.OSCServer('localhost')
+        self.oscServer = RemixNet.OSCServer()
         self.oscServer.sendOSC('/remix/oscserver/startup', 1)
         
         self.logger = self._LOG and Logger() or 0

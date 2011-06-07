@@ -246,17 +246,17 @@ class CallbackManager:
         self.callbacks = {}
         self.add(self.unbundler, "#bundle")
 
-    def handle(self, data, source = None):
+    def handle(self, data, source):
         """Given OSC data, tries to call the callback with the
         right address."""
         decoded = decodeOSC(data)
-        self.dispatch(decoded)
+        self.dispatch(decoded, source)
 
-    def dispatch(self, message):
+    def dispatch(self, message, source):
         """Sends decoded OSC data to an appropriate calback"""
         try:
             address = message[0]
-            self.callbacks[address](message)
+            self.callbacks[address](message, source)
         except KeyError, e:
 	    print "key not found"
             # address not found
@@ -275,11 +275,11 @@ class CallbackManager:
         else:
             self.callbacks[name] = callback
 
-    def unbundler(self, messages):
+    def unbundler(self, messages, source):
         """Dispatch the messages in a decoded bundle."""
         # first two elements are #bundle and the time tag, rest are messages.
         for message in messages[2:]:
-            self.dispatch(message)
+            self.dispatch(message, source)
 
 
 if __name__ == "__main__":
@@ -353,9 +353,9 @@ if __name__ == "__main__":
     c = CallbackManager()
     c.add(printingCallback, "/print")
     
-    c.handle(message.getBinary())
+    c.handle(message.getBinary(), None)
     message.setAddress("/print")
-    c.handle(message.getBinary())
+    c.handle(message.getBinary(), None)
     
     print1 = OSCMessage()
     print1.setAddress("/print")
@@ -363,7 +363,7 @@ if __name__ == "__main__":
     print1.append(42)
     print1.append(3.1415926)
 
-    c.handle(print1.getBinary())
+    c.handle(print1.getBinary(), None)
 
     bundle = OSCMessage()
     bundle.setAddress("")
@@ -376,4 +376,4 @@ if __name__ == "__main__":
     bundlebinary = bundle.message
 
     print "sending a bundle to the callback manager"
-    c.handle(bundlebinary)
+    c.handle(bundlebinary, None)
