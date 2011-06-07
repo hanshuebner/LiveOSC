@@ -54,3 +54,10 @@ class Logger:
     def write(self, msg):
         self.errorLog.write(msg)
         self.send("STDERR: " + msg)
+
+logger = Logger()
+
+def log(msg):
+    if logger != None:
+        logger.log(msg)
+

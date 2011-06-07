@@ -48,7 +48,7 @@ forward to seeing what will come next.
 """
 import sys
 import Live
-from Logger import Logger
+from Logger import log
 
 # Import correct paths for os / version
 version = Live.Application.get_application().get_major_version()
@@ -118,7 +118,6 @@ class OSCClient:
         """
         
         if self.udpClient is None:
-            # SHOULD RAISE EXCEPTION
             return
         
         
@@ -245,7 +244,7 @@ class OSCServer:
         if address == '':
             address = source[0]
         port = msg[3]
-        self.udpServer.log('reconfigure to send to ' + address + ':' + str(port))
+        log('reconfigure to send to ' + address + ':' + str(port))
         self.udpClient.close()
         self.udpClient = UDPClient(address, port)
         self.udpClient.open()
@@ -502,10 +501,6 @@ class UDPServer:
         You can modify these settings by using the methods setport() and setHost()
         """
 
-        self._LOG = 1
-
-        self.logger = self._LOG and Logger() or 0
-        
         if srcPort:
             self.srcPort = srcPort
         else:
@@ -518,11 +513,7 @@ class UDPServer:
         
         self.buf = 4096
 
-        self.log('listening for requests')
-
-    def log(self, msg):
-        if self._LOG == 1:
-            self.logger.log(msg) 
+        log('listening for requests')
 
     def processIncomingUDP(self):
         """
@@ -540,7 +531,7 @@ class UDPServer:
             
             while 1:
                 self.data,self.addr = self.UDPSock.recvfrom(self.buf)
-                self.log('received packet from ' + str(self.addr));
+                log('received packet from ' + str(self.addr));
                 if not self.data:
                 # No data buffered this round!
                     return
@@ -557,7 +548,7 @@ class UDPServer:
         except Exception, e:
             errno, message=e
             if errno != 35:                                 # EAGAIN, no data on socket
-                self.log('error handling message, errno ' + str(errno) + ': ' + message)
+                log('error handling message, errno ' + str(errno) + ': ' + message)
                 pass
 
     def setCallbackManager(self, callbackManager):

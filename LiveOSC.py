@@ -32,14 +32,11 @@ import LiveOSCCallbacks
 import RemixNet
 import OSC
 import LiveUtils
-from Logger import Logger
+from Logger import log
 
 class LiveOSC:
     __module__ = __name__
     __doc__ = "Main class that establishes the LiveOSC Component"
-    
-    # Enable Logging
-    _LOG = 1
     
     prlisten = {}
     plisten = {}
@@ -65,8 +62,7 @@ class LiveOSC:
         self.oscServer = RemixNet.OSCServer()
         self.oscServer.sendOSC('/remix/oscserver/startup', 1)
         
-        self.logger = self._LOG and Logger() or 0
-        self.log("Logging Enabled")
+        log("LiveOSC initialized")
         
         # Visible tracks listener
         if self.song().visible_tracks_has_listener(self.refresh_state) != 1:
@@ -181,9 +177,6 @@ class LiveOSC:
     def handle(self):
         """returns a handle to the c_interface that is needed when forwarding MIDI events via the MIDI map"""
         return self._LiveOSC__c_instance.handle()
-    def log(self, msg):
-        if self._LOG == 1:
-            self.logger.log(msg) 
             
     def getslots(self):
         tracks = self.song().visible_tracks
@@ -346,7 +339,7 @@ class LiveOSC:
         self.oscServer.sendOSC("/live/refresh", (1))
 
     def rem_clip_listeners(self):
-        self.log("** Remove Listeners **")
+        log("** Remove Listeners **")
     
         for slot in self.slisten:
             if slot != None:
@@ -392,7 +385,7 @@ class LiveOSC:
                 c = tracks[track][clip]
                 if c.clip != None:
                     self.add_cliplistener(c.clip, track, clip)
-                    self.log("ClipLauncher: added clip listener tr: " + str(track) + " clip: " + str(clip));
+                    log("ClipLauncher: added clip listener tr: " + str(track) + " clip: " + str(clip));
                 
                 self.add_slotlistener(c, track, clip)
         
@@ -725,10 +718,10 @@ class LiveOSC:
             self.oscServer.sendOSC('/live/track/info', (tid, armed, cid, 0, 0.0))
             self.oscServer.sendOSC('/live/clip/info', (tid, cid, 0))
                 
-        #self.log("Slot changed" + str(self.clips[tid][cid]))
+        #log("Slot changed" + str(self.clips[tid][cid]))
     
     def clip_changestate(self, clip, x, y):
-        self.log("Listener: x: " + str(x) + " y: " + str(y));
+        log("Listener: x: " + str(x) + " y: " + str(y));
 
         playing = 1
         
@@ -740,7 +733,7 @@ class LiveOSC:
             
         self.oscServer.sendOSC('/live/clip/info', (x, y, playing))
         
-        #self.log("Clip changed x:" + str(x) + " y:" + str(y) + " status:" + str(playing)) 
+        #log("Clip changed x:" + str(x) + " y:" + str(y) + " status:" + str(playing)) 
         
         
     # Mixer Callbacks
