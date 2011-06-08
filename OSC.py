@@ -244,7 +244,7 @@ class CallbackManager:
 
     def __init__(self):
         self.callbacks = {}
-        self.add(self.unbundler, "#bundle")
+        self.add("#bundle", self.unbundler)
 
     def handle(self, data, source):
         """Given OSC data, tries to call the callback with the
@@ -266,14 +266,14 @@ class CallbackManager:
         
         return
 
-    def add(self, callback, name):
+    def add(self, address, callback):
         """Adds a callback to our set of callbacks,
         or removes the callback with name if callback
         is None."""
         if callback == None:
-            del self.callbacks[name]
+            del self.callbacks[address]
         else:
-            self.callbacks[name] = callback
+            self.callbacks[address] = callback
 
     def unbundler(self, messages, source):
         """Dispatch the messages in a decoded bundle."""
@@ -351,7 +351,7 @@ if __name__ == "__main__":
     print "Testing the callback manager."
     
     c = CallbackManager()
-    c.add(printingCallback, "/print")
+    c.add("/print", printingCallback)
     
     c.handle(message.getBinary(), None)
     message.setAddress("/print")
