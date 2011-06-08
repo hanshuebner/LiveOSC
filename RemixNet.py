@@ -37,31 +37,10 @@ Based on the original RemixNet.py written by Nathan Ramella (nar@remix.net)
 -Updated May/June 2011 by Hans Huebner (hans.huebner@gmail.com)
 
     Refactored and removed methods that are not used.
-
-    The original version of RemixNet.py had several classes to
-    implement sending and receiving OSC packets.  This was relatively
-    hard to change or update, and as I wanted to be able to change the
-    destination of OSC packets sent out by live at run time, I decided
-    to simplify RemixNet so that it only supports those functions that
-    are actually used by LiveOSC.  In particular, OSCServer,
-    OSCClient, UDPServer and UDPClient have all been collapsed into
-    one class, OSCEndpoint.  OSCEndpoint uses one UDP socket to send
-    and receive data.  By default, the socket is bound to port 9000 as
-    before, but it listens to all network interfaces so that packets
-    coming in from the network are accepted.  Also by default,
-    outgoing packets are sent to localhost port 9001.  This can be
-    changed by sending a /remix/set_peer message with two arguments,
-    the host and the port number of the peer.  The host may optionally
-    be sent as empty string.  In that case, the peer host will be
-    automatically be set to the host that sent the /remix/set_peer
-    message, making it easier to configure the OSC association.
-
-    Also, the logging mechanism has been simplified.  It can now be
-    used simply by importing the log function from the Logger module
-    and then calling log() with a string argument.
     
 """
 import sys
+import errno
 import Live
 from Logger import log
 
@@ -222,8 +201,8 @@ class OSCEndpoint:
                 self.callbackManager.handle(self.data, self.addr)
 
         except Exception, e:
-            errno, message=e
-            if errno != 35:                                 # EAGAIN, no data on socket
+            err, message=e
+            if err != errno.EAGAIN:                                 # no data on socket
                 log('error handling message, errno ' + str(errno) + ': ' + message)
                 pass
 
