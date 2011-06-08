@@ -25,10 +25,9 @@ class Logger:
             try:
                 self.socket.connect(("localhost", 4444))
                 self.connected = 1
+                sys.stderr = self
             except:
                 print "Couldn't connect socket"
-
-        sys.stderr = self
 
         self.buf = ""
 
