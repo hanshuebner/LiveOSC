@@ -98,11 +98,12 @@ class OSCEndpoint:
           listening to for incoming OSC packets.  By default, we are
           listening on all interfaces with port 9000.
         
-        By default we define and set callbacks for two utility functions that may
-        be useful in testing.
+        By default we define and set callbacks for some utility
+        addresses:
         
-        /remix/echo -> OSCEndpoint.callbackEcho() - For responding to /remix/echo queries.
-        /remix/time -> OSCEndpoint.callbackTime() - Returns time.time() (time in float seconds)
+        /remix/echo - Echos back the string argument to the peer.
+        /remix/time - Returns time.time() (time in float seconds)
+        /remix/set_peer - Reconfigures the peer address which we send OSC messages to
         """
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -237,7 +238,11 @@ class OSCEndpoint:
 
     def setPeer(self, msg, source):
         """
-        Reconfigure the client side to the address and port indicated as the argument.
+        Reconfigure the client side to the address and port indicated
+        as the argument.  The first argument is a string with the host
+        address or an empty string if the IP address of the sender of
+        the reconfiguration message should be used as peer.  The
+        second argument is the integer port number of the peer.
         """
         host = msg[2]
         if host == '':
