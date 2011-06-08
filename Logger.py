@@ -27,10 +27,7 @@ class Logger:
                 self.connected = 1
             except:
                 print "Couldn't connect socket"
-                
 
-        self.errorLog = open("C:\\stderr.txt", "w")
-        self.errorLog.write("Starting Error Log")
         sys.stderr = self
 
         self.buf = ""
@@ -50,10 +47,7 @@ class Logger:
             self.socket.send("Closing..")
             self.socket.close()
             
-        self.errorLog.close()
-            
     def write(self, msg):
-        self.errorLog.write(msg)
         self.buf = self.buf + msg
         lines = self.buf.split("\n", 2)
         if len(lines) == 2:
