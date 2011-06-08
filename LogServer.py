@@ -18,6 +18,6 @@ class LoggerRequestHandler(SocketServer.BaseRequestHandler):
 
 if __name__=='__main__':
     SocketServer.ThreadingTCPServer.allow_reuse_address = True
-    server = SocketServer.ThreadingTCPServer(('localhost', 4444), LoggerRequestHandler)
+    server = SocketServer.ThreadingTCPServer(('', 4444), LoggerRequestHandler)
     server.serve_forever()
 
