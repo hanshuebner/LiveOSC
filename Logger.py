@@ -32,7 +32,8 @@ class Logger:
         self.errorLog = open("C:\\stderr.txt", "w")
         self.errorLog.write("Starting Error Log")
         sys.stderr = self
-                
+
+        self.buf = ""
 
     def log(self,msg):
         if self.connected:
@@ -42,7 +43,7 @@ class Logger:
         
     def send(self,msg):
         if self.connected:
-            self.socket.send(msg + "\n")
+            self.socket.send(msg)
     
     def close(self):
         if self.connected:
@@ -53,7 +54,11 @@ class Logger:
             
     def write(self, msg):
         self.errorLog.write(msg)
-        self.send("STDERR: " + msg)
+        self.buf = self.buf + msg
+        lines = self.buf.split("\n", 2)
+        if len(lines) == 2:
+            self.send("STDERR: " + lines[0] + "\n")
+            self.buf = lines[1]
 
 logger = Logger()
 
