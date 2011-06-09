@@ -25,6 +25,7 @@ class Logger:
             try:
                 self.socket.connect(("localhost", 4444))
                 self.connected = 1
+                self.stderr = sys.stderr
                 sys.stderr = self
             except:
                 print "Couldn't connect socket"
@@ -47,6 +48,7 @@ class Logger:
             self.socket.close()
             
     def write(self, msg):
+        self.stderr.write(msg)
         self.buf = self.buf + msg
         lines = self.buf.split("\n", 2)
         if len(lines) == 2:
@@ -55,7 +57,12 @@ class Logger:
 
 logger = Logger()
 
-def log(msg):
+def log(*args):
+    text = ''
+    for arg in args:
+        if text != '':
+            text = text + ' '
+        text = text + str(arg)
     if logger != None:
-        logger.log(msg)
+        logger.log(text)
 
