@@ -25,6 +25,9 @@ import Live
 import RemixNet
 import OSC
 import LiveUtils
+import sys
+
+from Logger import log
 
 class LiveOSCCallbacks:
     def __init__(self, c_instance, oscEndpoint):
@@ -347,7 +350,6 @@ class LiveOSCCallbacks:
         elif len(msg) == 3:
             scene = msg[2]
             LiveUtils.getSong().view.selected_scene = LiveUtils.getSong().scenes[scene]
-        
 
     def tracksCB(self, msg, source):
         """Called when a /live/tracks message is received.
@@ -373,10 +375,12 @@ class LiveOSCCallbacks:
         """        
         #Requesting all scene names
         if len(msg) == 2 or (len(msg) == 3 and msg[2] == "query"):
+            bundle = OSC.OSCBundle()
             sceneNumber = 0
             for scene in LiveUtils.getScenes():
-                self.oscEndpoint.send("/live/name/scene", (sceneNumber, str(scene.name)))
+                bundle.append(OSC.OSCMessage("/live/name/scene", (sceneNumber, str(scene.name))))
                 sceneNumber = sceneNumber + 1
+            self.oscEndpoint.sendMessage(bundle)
             return
         #Requesting a single scene name
         if len(msg) == 3:
@@ -415,9 +419,11 @@ class LiveOSCCallbacks:
         #Requesting all track names
         if len(msg) == 2 or (len(msg) == 3 and msg[2] == "query"):
             trackNumber = 0
+            bundle = OSC.OSCBundle()
             for track in LiveUtils.getTracks():
-                self.oscEndpoint.send("/live/name/track", (trackNumber, str(track.name)))
+                bundle.append(OSC.OSCMessage("/live/name/track", (trackNumber, str(track.name))))
                 trackNumber = trackNumber + 1
+            self.oscEndpoint.sendMessage(bundle)
             return
         #Requesting a single track name
         if len(msg) == 3:
@@ -442,7 +448,6 @@ class LiveOSCCallbacks:
             for track in range(0, blocksize):
                 block.extend([str(LiveUtils.getTrack(trackOffset+track).name)])                            
             self.oscEndpoint.send("/live/name/trackblock", block)
-
 
     def nameClipBlockCB(self, msg, source):
         """Called when a /live/name/clipblock message is received.
@@ -480,18 +485,20 @@ class LiveOSCCallbacks:
         /live/name/clip    (int track, int clip, string name)Sets clip number clip in track number track's name to name
 
         """
-        
+
         #Requesting all clip names
         if len(msg) == 2 or (len(msg) == 3 and msg[2] == "query"):
             trackNumber = 0
             clipNumber = 0
+            bundle = OSC.OSCBundle()
             for track in LiveUtils.getTracks():
                 for clipSlot in track.clip_slots:
                     if clipSlot.clip != None:
-                        self.oscEndpoint.send("/live/name/clip", (trackNumber, clipNumber, str(clipSlot.clip.name), clipSlot.clip.color))
+                        bundle.append(OSC.OSCMessage("/live/name/clip", (trackNumber, clipNumber, str(clipSlot.clip.name), clipSlot.clip.color)))
                     clipNumber = clipNumber + 1
                 clipNumber = 0
                 trackNumber = trackNumber + 1
+            self.oscEndpoint.sendMessage(bundle)
             return
         #Requesting a single clip name
         if len(msg) == 4:
@@ -529,7 +536,7 @@ class LiveOSCCallbacks:
 
         notes = ((pitch, time, duration, velocity, muted),)
         LiveUtils.getClip(trackNumber, clipNumber).replace_selected_notes(notes)
-        self.oscEndpoint.send('/live/clip/note', (trackNumber, clipNumber, pitch, time, duration, velocity, muted));
+        self.oscEndpoint.send('/live/clip/note', (trackNumber, clipNumber, pitch, time, duration, velocity, muted))
 
     def getNotesCB(self, msg, source):
         """Called when a /live/clip/notes message is received
@@ -541,6 +548,7 @@ class LiveOSCCallbacks:
         trackNumber = msg[2]
         clipNumber = msg[3]
         LiveUtils.getClip(trackNumber, clipNumber).select_all_notes()
+        bundle = OSC.OSCBundle()
         for note in LiveUtils.getClip(trackNumber, clipNumber).get_selected_notes():
             pitch = note[0]
             time = note[1]
@@ -549,7 +557,8 @@ class LiveOSCCallbacks:
             muted = 0
             if note[4]:
                 muted = 1
-            self.oscEndpoint.send('/live/clip/note', (trackNumber, clipNumber, pitch, time, duration, velocity, muted));
+            bundle.append(OSC.OSCMessage('/live/clip/note', (trackNumber, clipNumber, pitch, time, duration, velocity, muted)))
+        self.oscEndpoint.sendMessage(bundle)
     
     def armTrackCB(self, msg, source):
         """Called when a /live/arm message is received.

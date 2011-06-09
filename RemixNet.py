@@ -136,27 +136,7 @@ class OSCEndpoint:
         combing through it yourself.
         """
         
-        oscMessage = OSC.OSCMessage()
-        oscMessage.setAddress(address)
-
-        # By default OSC.py doesn't look like it'll process tuples
-        # and pack them. So, we help it along by breaking them up
-        # and appending each entity.
-       
-        if type(msg) in (str,int,float):
-           oscMessage.append(msg)
-        elif type(msg) in (list,tuple):
-             for m in msg:
-                if type(m) not in (str,int,float):
-                    log("don't know how to encode message element " + str(m) + " " + str(type(m)))
-                    return
-                oscMessage.append(m)
-        elif msg == None:
-        	self.socket.send(oscMessage.getBinary())
-		return
-        else:
-            log("don't know how to encode message " + str(m) + " " + str(type(m)))
-            return
+        oscMessage = OSC.OSCMessage(address, msg)
         self.sendMessage(oscMessage)
 
     def sendMessage(self, message):
@@ -220,13 +200,15 @@ class OSCEndpoint:
             while 1:
                 self.data, self.addr = self.socket.recvfrom(65536)
 #                log('received packet from ' + str(self.addr))
-                self.callbackManager.handle(self.data, self.addr)
+                try:
+                    self.callbackManager.handle(self.data, self.addr)
+                except:
+                    self.send('/remix/error', (str(sys.exc_info())))
 
         except Exception, e:
             err, message=e
             if err != errno.EAGAIN:                                 # no data on socket
                 log('error handling message, errno ' + str(errno) + ': ' + message)
-                pass
 
     def shutdown(self):
         """

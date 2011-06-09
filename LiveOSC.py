@@ -135,10 +135,7 @@ class LiveOSC:
             try:
                 self.oscEndpoint.processIncomingUDP()
             except:
-                exc_info = sys.exc_info();
-                exc = exc_info[1]
-                log('error processing incoming UDP packets: ' + str(exc));
-                pass
+                log('error processing incoming UDP packets:', sys.exc_info());
             
         # END OSC LISTENER SETUP
         ######################################################
@@ -342,8 +339,6 @@ class LiveOSC:
         self.oscEndpoint.send("/live/refresh", (1))
 
     def rem_clip_listeners(self):
-        log("** Remove Listeners **")
-    
         for slot in self.slisten:
             if slot != None:
                 if slot.has_clip_has_listener(self.slisten[slot]) == 1:
