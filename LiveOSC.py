@@ -112,7 +112,7 @@ class LiveOSC:
             # Since this method is called every 100ms regardless of the song time
             # changing, we use both methods for processing incoming UDP requests
             # so that from a resting state you can initiate play/clip triggering.
-            
+
             try:
                 doc = self.song()
             except:
@@ -122,8 +122,8 @@ class LiveOSC:
                 self.basicAPI = LiveOSCCallbacks.LiveOSCCallbacks(self._LiveOSC__c_instance, self.oscEndpoint)
                 # Commented for stability
                 #doc.add_current_song_time_listener(self.oscEndpoint.processIncomingUDP)
-                self.oscEndpoint.send('/remix/echo', 'basicAPI setup complete')
             except:
+                self.oscEndpoint.send('/remix/echo', 'setting up basicAPI failed')
                 log('setting up basicAPI failed');
                 return
             
@@ -227,16 +227,19 @@ class LiveOSC:
 
         trackNumber = 0
         clipNumber = 0
+        
+        bundle = OSC.OSCBundle()
         for track in self.song().visible_tracks:
-            self.oscEndpoint.send("/live/name/track", (trackNumber, str(track.name)))
+            bundle.append(OSC.OSCMessage("/live/name/track", (trackNumber, str(track.name))))
             
             for clipSlot in track.clip_slots:
                 if clipSlot.clip != None:
-                    self.oscEndpoint.send("/live/name/clip", (trackNumber, clipNumber, str(clipSlot.clip.name), clipSlot.clip.color))
+                    bundle.append(OSC.OSCMessage("/live/name/clip", (trackNumber, clipNumber, str(clipSlot.clip.name), clipSlot.clip.color)))
                 clipNumber = clipNumber + 1
             clipNumber = 0
             trackNumber = trackNumber + 1
 
+        self.oscEndpoint.sendMessage(bundle)
         self.trBlock(0, len(self.song().visible_tracks))
 
 ######################################################################
