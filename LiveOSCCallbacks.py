@@ -31,13 +31,10 @@ from Logger import log
 
 class LiveOSCCallbacks:
     def __init__(self, c_instance, oscEndpoint):
-        if oscEndpoint:
-            self.oscEndpoint = oscEndpoint
-            self.callbackManager = oscEndpoint.callbackManager
-            
-            self.c_instance = c_instance
-        else:
-            return
+        self.oscEndpoint = oscEndpoint
+        self.callbackManager = oscEndpoint.callbackManager
+
+        self.c_instance = c_instance
 
         self.callbackManager.add("/live/tempo", self.tempoCB)
         self.callbackManager.add("/live/time", self.timeCB)
