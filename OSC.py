@@ -36,6 +36,7 @@ import sys
 import struct
 import math
 import string
+import time
 
 from Logger import log
 
@@ -92,10 +93,26 @@ class OSCMessage:
     def __repr__(self):
         return self.getBinary()
 
+JAN_1970 = 2208988800L
+SECS_TO_PICOS = 4294967296L
+def abs_to_timestamp(abs):
+    """ since 1970 => since 1900 64b OSC """
+    sec_1970 = long(abs)
+    sec_1900 = sec_1970 + JAN_1970
+
+    sec_frac = float(abs - sec_1970)
+    picos = long(sec_frac * SECS_TO_PICOS)
+
+    total_picos = (abs + JAN_1970) * SECS_TO_PICOS
+    return struct.pack('!LL', sec_1900, picos)
+
 class OSCBundle:
     """Builds OSC bundles"""
-    def __init__(self):
+    def __init__(self, when=None):
         self.items = []
+        if when == None:
+            when = time.time()
+        self.when = when
 
     def append(self, address, msg = None):
         if isinstance(address, str):
@@ -107,7 +124,7 @@ class OSCBundle:
             raise Exception('invalid type of first argument to OSCBundle.append(), need address string or OSCMessage, not ', str(type(address)))
 
     def getBinary(self):
-        retval = OSCArgument('#bundle')[1] + OSCArgument(0)[1] + OSCArgument(0)[1]
+        retval = OSCArgument('#bundle')[1] + abs_to_timestamp(self.when)
         for item in self.items:
             binary = item.getBinary()
             retval = retval + OSCArgument(len(binary))[1] + binary
@@ -184,8 +201,7 @@ def OSCArgument(next):
         binary  = struct.pack(">i", next)
         tag = "i"
     else:
-        binary  = ""
-        tag = ""
+        raise Exception("don't know how to encode " + str(next) + " as OSC argument, type=" + str(type(next)))
 
     return (tag, binary)
 
