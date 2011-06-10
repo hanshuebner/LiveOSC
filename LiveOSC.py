@@ -230,11 +230,11 @@ class LiveOSC:
         
         bundle = OSC.OSCBundle()
         for track in self.song().visible_tracks:
-            bundle.append(OSC.OSCMessage("/live/name/track", (trackNumber, str(track.name))))
+            bundle.append("/live/name/track", (trackNumber, str(track.name)))
             
             for clipSlot in track.clip_slots:
                 if clipSlot.clip != None:
-                    bundle.append(OSC.OSCMessage("/live/name/clip", (trackNumber, clipNumber, str(clipSlot.clip.name), clipSlot.clip.color)))
+                    bundle.append("/live/name/clip", (trackNumber, clipNumber, str(clipSlot.clip.name), clipSlot.clip.color))
                 clipNumber = clipNumber + 1
             clipNumber = 0
             trackNumber = trackNumber + 1

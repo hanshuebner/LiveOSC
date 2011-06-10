@@ -97,8 +97,14 @@ class OSCBundle:
     def __init__(self):
         self.items = []
 
-    def append(self, item):
-        self.items.append(item)
+    def append(self, address, msg = None):
+        if isinstance(address, str):
+            self.items.append(OSCMessage(address, msg))
+        elif isinstance(address, OSCMessage):
+            # address really is an OSCMessage
+            self.items.append(address)
+        else:
+            raise Exception('invalid type of first argument to OSCBundle.append(), need address string or OSCMessage, not ', str(type(address)))
 
     def getBinary(self):
         retval = OSCArgument('#bundle')[1] + OSCArgument(0)[1] + OSCArgument(0)[1]
@@ -345,7 +351,7 @@ if __name__ == "__main__":
 
     bundle = OSCBundle()
     bundle.append(print1)
-    bundle.append(print1)
+    bundle.append('/foo', (123, 456))
     bundlebinary = bundle.getBinary()
     hexDump(bundlebinary)
     print decodeOSC(bundlebinary)

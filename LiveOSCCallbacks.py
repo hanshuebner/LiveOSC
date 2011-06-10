@@ -375,7 +375,7 @@ class LiveOSCCallbacks:
             bundle = OSC.OSCBundle()
             sceneNumber = 0
             for scene in LiveUtils.getScenes():
-                bundle.append(OSC.OSCMessage("/live/name/scene", (sceneNumber, str(scene.name))))
+                bundle.append("/live/name/scene", (sceneNumber, str(scene.name)))
                 sceneNumber = sceneNumber + 1
             self.oscEndpoint.sendMessage(bundle)
             return
@@ -418,7 +418,7 @@ class LiveOSCCallbacks:
             trackNumber = 0
             bundle = OSC.OSCBundle()
             for track in LiveUtils.getTracks():
-                bundle.append(OSC.OSCMessage("/live/name/track", (trackNumber, str(track.name))))
+                bundle.append("/live/name/track", (trackNumber, str(track.name)))
                 trackNumber = trackNumber + 1
             self.oscEndpoint.sendMessage(bundle)
             return
@@ -491,7 +491,7 @@ class LiveOSCCallbacks:
             for track in LiveUtils.getTracks():
                 for clipSlot in track.clip_slots:
                     if clipSlot.clip != None:
-                        bundle.append(OSC.OSCMessage("/live/name/clip", (trackNumber, clipNumber, str(clipSlot.clip.name), clipSlot.clip.color)))
+                        bundle.append("/live/name/clip", (trackNumber, clipNumber, str(clipSlot.clip.name), clipSlot.clip.color))
                     clipNumber = clipNumber + 1
                 clipNumber = 0
                 trackNumber = trackNumber + 1
@@ -554,7 +554,7 @@ class LiveOSCCallbacks:
             muted = 0
             if note[4]:
                 muted = 1
-            bundle.append(OSC.OSCMessage('/live/clip/note', (trackNumber, clipNumber, pitch, time, duration, velocity, muted)))
+            bundle.append('/live/clip/note', (trackNumber, clipNumber, pitch, time, duration, velocity, muted))
         self.oscEndpoint.sendMessage(bundle)
     
     def armTrackCB(self, msg, source):
