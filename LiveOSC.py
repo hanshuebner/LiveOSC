@@ -121,7 +121,8 @@ class LiveOSC:
             try:
                 self.basicAPI = LiveOSCCallbacks.LiveOSCCallbacks(self._LiveOSC__c_instance, self.oscEndpoint)
                 # Commented for stability
-                #doc.add_current_song_time_listener(self.oscEndpoint.processIncomingUDP)
+                self.time = 0
+                doc.add_current_song_time_listener(self.current_song_time_changed)
             except:
                 self.oscEndpoint.send('/remix/echo', 'setting up basicAPI failed')
                 log('setting up basicAPI failed');
@@ -139,6 +140,12 @@ class LiveOSC:
             
         # END OSC LISTENER SETUP
         ######################################################
+
+    def current_song_time_changed(self):
+        time = self.song().current_song_time
+        if int(time) != self.time:
+            self.time = int(time)
+            self.oscEndpoint.send("/live/beat", self.time)
 
     def send_midi(self, midi_event_bytes):
         """
