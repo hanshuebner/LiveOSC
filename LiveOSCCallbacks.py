@@ -413,6 +413,7 @@ class LiveOSCCallbacks:
         /live/name/track    (int track, string name)Sets track number track's name to name
 
         """        
+        
         #Requesting all track names
         if len(msg) == 2 or (len(msg) == 3 and msg[2] == "query"):
             trackNumber = 0
@@ -482,20 +483,20 @@ class LiveOSCCallbacks:
         /live/name/clip    (int track, int clip, string name)Sets clip number clip in track number track's name to name
 
         """
-
+        
         #Requesting all clip names
         if len(msg) == 2 or (len(msg) == 3 and msg[2] == "query"):
             trackNumber = 0
             clipNumber = 0
-            bundle = OSC.OSCBundle()
             for track in LiveUtils.getTracks():
+                bundle = OSC.OSCBundle()
                 for clipSlot in track.clip_slots:
                     if clipSlot.clip != None:
                         bundle.append("/live/name/clip", (trackNumber, clipNumber, str(clipSlot.clip.name), clipSlot.clip.color))
                     clipNumber = clipNumber + 1
+                self.oscEndpoint.sendMessage(bundle)
                 clipNumber = 0
                 trackNumber = trackNumber + 1
-            self.oscEndpoint.sendMessage(bundle)
             return
         #Requesting a single clip name
         if len(msg) == 4:

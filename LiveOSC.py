@@ -114,6 +114,7 @@ class LiveOSC:
             # so that from a resting state you can initiate play/clip triggering.
 
             try:
+                log('start');
                 doc = self.song()
             except:
                 log('could not get song handle')
@@ -234,19 +235,19 @@ class LiveOSC:
 
         trackNumber = 0
         clipNumber = 0
-        
-        bundle = OSC.OSCBundle()
+       
         for track in self.song().visible_tracks:
-            bundle.append("/live/name/track", (trackNumber, str(track.name)))
+            bundle = OSC.OSCBundle()
+            bundle.append("/live/name/track/", (trackNumber, str(track.name)))
             
             for clipSlot in track.clip_slots:
                 if clipSlot.clip != None:
-                    bundle.append("/live/name/clip", (trackNumber, clipNumber, str(clipSlot.clip.name), clipSlot.clip.color))
+                    bundle.append("/live/name/clip/", (trackNumber, clipNumber, str(clipSlot.clip.name), clipSlot.clip.color))
                 clipNumber = clipNumber + 1
             clipNumber = 0
             trackNumber = trackNumber + 1
-
-        self.oscEndpoint.sendMessage(bundle)
+            self.oscEndpoint.sendMessage(bundle)
+        
         self.trBlock(0, len(self.song().visible_tracks))
 
 ######################################################################
