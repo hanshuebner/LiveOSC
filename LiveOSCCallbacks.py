@@ -412,8 +412,7 @@ class LiveOSCCallbacks:
         /live/name/track    (int track)             Returns a single track's name in the form /live/name/track (int track, string name)
         /live/name/track    (int track, string name)Sets track number track's name to name
 
-        """        
-        
+        """
         #Requesting all track names
         if len(msg) == 2 or (len(msg) == 3 and msg[2] == "query"):
             trackNumber = 0
@@ -483,7 +482,6 @@ class LiveOSCCallbacks:
         /live/name/clip    (int track, int clip, string name)Sets clip number clip in track number track's name to name
 
         """
-        
         #Requesting all clip names
         if len(msg) == 2 or (len(msg) == 3 and msg[2] == "query"):
             trackNumber = 0
