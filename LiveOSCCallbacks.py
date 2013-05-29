@@ -640,12 +640,12 @@ class LiveOSCCallbacks:
             self.oscEndpoint.send("/live/master/volume", LiveUtils.getSong().master_track.mixer_device.volume.value)
         
         elif len(msg) == 3 and ty == 2:
-            volume = msg[2]
+            volume = float(msg[2])
             LiveUtils.getSong().master_track.mixer_device.volume.value = volume
         
         elif len(msg) == 4:
-            track = msg[2]
-            volume = msg[3]
+            track = int(msg[2])
+            volume = float(msg[3])
             
             if ty == 0:
                 LiveUtils.trackVolume(track, volume)
@@ -653,7 +653,7 @@ class LiveOSCCallbacks:
                 LiveUtils.getSong().return_tracks[track].mixer_device.volume.value = volume
 
         elif len(msg) == 3:
-            track = msg[2]
+            track = int(msg[2])
 
             if ty == 1:
                 self.oscEndpoint.send("/live/return/volume", (track, LiveUtils.getSong().return_tracks[track].mixer_device.volume.value))
